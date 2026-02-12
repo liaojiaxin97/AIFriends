@@ -16,8 +16,8 @@
         </div>
      
 
-        <div class = "navbar-center w-4/5 max-w-180">
-        <div class="join w-4/5">
+        <div class = "navbar-center w-4/5 max-w-180 flex jcustify-center">
+        <div class="join w-4/5 flex jcustify-center">
         <input class="input join-item rounded-l-full w-4/5" placeholder="搜索你感兴趣的内容" />
         <button class="btn join-item rounded-r-full gap-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="w-4 h-4">

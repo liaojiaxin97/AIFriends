@@ -1,4 +1,4 @@
-from djiango.shortcuts import render
+from django.shortcuts import render
 
 
 #跟templates/index.html对应

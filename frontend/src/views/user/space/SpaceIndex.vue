@@ -1,5 +1,5 @@
 <script setup>
-import {useRoute} from "vue-router";
+import {useRoute,useRouter} from "vue-router";
 
 const route = useRoute()
 
@@ -7,7 +7,7 @@ const router = useRouter()
 </script>
 
 <template>
-个人空间：{{ route.params.user_id }}
+个人空间：{{ route.params.user.id }}
 
 
 </template>

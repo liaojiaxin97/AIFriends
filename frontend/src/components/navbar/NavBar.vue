@@ -38,14 +38,15 @@ const user = useUserStore()
         </div>
 
         <div class="navbar-end">
+        <!-- 调试信息 -->
+        <!-- {{ user.isLogin() }}, {{ user.hasPulledUserInfo }} -->
         <router-link v-if = "user.isLogin()" :to="{name: 'create-index' }" active-class = "btn-active" class= "btn btn-ghost text-base mr-6">
           创作
         </router-link>
-        <router-link v-if = "!user.isLogin()" :to = "{ name : 'user-account-login-index' }" active-class = "btn-active" class = "btn btn-ghost text-lg">
+        <router-link v-if = "user.hasPulledUserInfo && !user.isLogin()" :to = "{ name : 'user-account-login-index' }" active-class = "btn-active" class = "btn btn-ghost text-lg">
           登录
         </router-link>
-        <UserMenu v-else>
-        </UserMenu>
+        <UserMenu v-else-if = "user.isLogin()"></UserMenu>
         </div>
     </nav>
 

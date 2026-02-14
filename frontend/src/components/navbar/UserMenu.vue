@@ -16,7 +16,7 @@ function closeMenu() {
 async function handleLogout(){
     try{
         const res = await api.post('/api/user/account/logout/')
-        if (res.data.result ==='success'){
+        if (res.data.result === 'success'){
             user.logout()
             await router.push({
                 name : 'homepage-index'
@@ -36,7 +36,7 @@ async function handleLogout(){
     </div>
   </div>
   <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg">
-    <li>
+    <li v-if="user.id">
         <router-link @click="closeMenu" :to="{name: 'user-space-index', params: {user_id: user.id}}">
             <div class = "avatar">
                 <div class = "w-10 rounded-full">
@@ -46,13 +46,13 @@ async function handleLogout(){
             <span class = "text-base font-bold line-clamp-1">{{ user.username }}</span>
         </router-link>
     </li>
-    <li>
+    <li v-if="user.id">
         <router-link @click="closeMenu" :to="{name: 'user-space-index', params: {user_id: user.id}}" class="text-sm font-bold py-3">
             <UserSpaceIcon />
             个人空间
         </router-link>
     </li>
-        <li>
+    <li v-if="user.id">
         <router-link @click="closeMenu" :to="{name: 'user-profile-index', params: {user_id: user.id}}" class="text-sm font-bold py-3">
             <UserProfileIcon />
             编辑个人资料

@@ -2,11 +2,11 @@ import {defineStore} from "pinia";
 import {ref} from "vue"
 
 export const useUserStore = defineStore('user', () => {
-    const id = ref(1)
-    const username = ref('neo')
-    const photo = ref('http://127.0.0.1:8000/media/user/photos/default.png')
-    const profile = ref('111')
-    const accessToken = ref('1111')
+    const id = ref()
+    const username = ref('')
+    const photo = ref('')
+    const profile = ref('')
+    const accessToken = ref('')
 
     function isLogin(){
         return !!accessToken.value  // 必须带value
@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', () => {
         accessToken.value = token
     }
     function setUserInfo(data){
-        id.value = data.id
+        id.value = data.id || data.user_id  // 兼容两种字段名
         username.value = data.username
         photo.value = data.photo
         profile.value = data.profile

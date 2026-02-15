@@ -41,6 +41,7 @@ const user = useUserStore()
         <!-- 调试信息 -->
         <!-- {{ user.isLogin() }}, {{ user.hasPulledUserInfo }} -->
         <router-link v-if = "user.isLogin()" :to="{name: 'create-index' }" active-class = "btn-active" class= "btn btn-ghost text-base mr-6">
+          <UserCreateIcon />
           创作
         </router-link>
         <router-link v-if = "user.hasPulledUserInfo && !user.isLogin()" :to = "{ name : 'user-account-login-index' }" active-class = "btn-active" class = "btn btn-ghost text-lg">

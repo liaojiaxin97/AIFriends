@@ -43,7 +43,7 @@ async function handleLogout(){
                     <img :src="user.photo" alt="用户头像" />
                 </div>
             </div>
-            <span class = "text-base font-bold line-clamp-1">{{ user.username }}</span>
+            <span class = "text-base font-bold line-clamp-1 break-all">{{ user.username }}</span>
         </router-link>
     </li>
     <li v-if="user.id">

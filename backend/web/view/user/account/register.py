@@ -22,9 +22,9 @@ class RegisterView(APIView):
             user_profile = UserProfile.objects.create(user=user)
             refresh = RefreshToken.for_user(user)
             response = Response({
-                "result": "注册成功",
+                "result": "success",
                 'access':str(refresh.access_token),
-                'user_id': user.id,
+                'id': user.id,
                 'username': user.username,
                 'photo': user_profile.photo.url,
                 'profile': user_profile.profile,

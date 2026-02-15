@@ -6,7 +6,7 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]  #q强制必须登录才能访问
     def post(self,request):
         response = Response({
-            "result": "退出登录成功"
+            "result": "success"
         })  
         response.delete_cookie('refresh_toekn')
         return response

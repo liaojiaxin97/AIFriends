@@ -19,12 +19,12 @@ class LoginView(APIView):
                 })
             user= authenticate(username=username, password=password)
             if user: #用户名密码正确
-                user_profile = UserProfile.objects.get(username = username)
+                user_profile = UserProfile.objects.get(user=user)
                 refresh = RefreshToken.for_user(user)
                 response = Response({
-                    'result': "登录成功",
+                    'result': "success",
                     'access':str(refresh.access_token),
-                    'user_id': user.id,
+                    'id': user.id,
                     'username': user.username,
                     'photo': user_profile.photo.url,
                     'profile': user_profile.profile,

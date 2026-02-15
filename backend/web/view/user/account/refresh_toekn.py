@@ -20,6 +20,7 @@ class RefreshTokenView(APIView):
                      "result": "刷新成功",
                      'access': str(refresh.access_token),
                })
+               #cookie中 是refresh
                response.set_cookie(
                     key = 'refresh_toekn',
                     value = str(refresh),
@@ -29,7 +30,7 @@ class RefreshTokenView(APIView):
                     max_age=86400 * 7,
                )
                return response
-            #如果不需要刷新，则直接返回
+            #如果不需要刷新，则直接返回，返回到前端的是access
             response = Response({
                 "result": "刷新成功",
                 'access': str(refresh.access_token),

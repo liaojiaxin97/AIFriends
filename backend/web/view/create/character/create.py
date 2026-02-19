@@ -1,0 +1,55 @@
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from web.models.character import Character
+from web.models.user import UserProfile
+
+class CreateCharacterView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            #用户是否已登录并通过身份验证
+            user = request.user
+            #在 UserProfile 模型表(数据库)中查找与该 User 关联的一条记录
+            user_profile = UserProfile.objects.get(user = user)
+            name = request.data.get('name')
+            profile = request.data.get('profile')
+            photo = request.FILES.get('photo',None)
+            backgroud_image = request.FILES.get('backgroud_image',None)
+
+            if not name:
+                return Response({
+                    'result':'用户名不能为空'
+                })
+
+            if not profile:
+                return Response({
+                    'result':'角色介绍不能为空'
+                })
+
+            if not photo:
+                return Response({
+                    'result':'头像不能为空'
+                })
+
+            if not backgroud_image:
+                return Response({
+                    'result':'聊天背景不能为空'
+                })     
+            Character.objects.create(
+                author = user_profile,
+                name = name,
+                profile = profile,
+                photo = photo,
+                backgroud_image = backgroud_image
+            )      
+            return Response({
+                'result':'success'
+            })
+        except:
+            return Response({
+                'result':'系统异常，请稍后重试'
+            })

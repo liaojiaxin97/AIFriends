@@ -1,0 +1,30 @@
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
+from web.models.character import Character
+
+class GetSingleCharacterView(APIView):
+    permission_classes = [IsAuthenticated]
+    #get方法传入的参数在request.query_params中；
+    #post方法传入的参数在request.data中。
+    def get(self,request):
+        try:
+            character_id = request.query_params.get('character_id')
+            #author__user =  用于确保只有当前登录用户创建的 Character 实例才能被删除
+            character = Character.objects.get(id = character_id, author__user = request.user)
+            return Response({
+                'result':'success',
+                'character':{
+                    'id' :character_id,
+                    'name':character.name,
+                    'profile':character.profile,
+                    'photo':character.photo.url,
+                    'background_image':character.background.image.url,
+                }
+            })
+
+        except:
+            return Response({
+                'result':'系统异常，请稍后重试'
+            })

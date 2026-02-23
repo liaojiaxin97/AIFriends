@@ -7,7 +7,7 @@ const router = useRouter()
 </script>
 
 <template>
-个人空间：{{ route.params.user.id }}
+个人空间：{{ route.params.user_id }}
 
 
 </template>

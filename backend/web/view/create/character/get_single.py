@@ -20,7 +20,7 @@ class GetSingleCharacterView(APIView):
                     'name':character.name,
                     'profile':character.profile,
                     'photo':character.photo.url,
-                    'background_image':character.background.image.url,
+                    'background_image':character.background_image.url,
                 }
             })
 

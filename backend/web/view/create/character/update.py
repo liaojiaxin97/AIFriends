@@ -8,16 +8,16 @@ from web.models.character import Character
 from django.utils.timezone import now
 
 class UpdateCharacterView(APIView):
-     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-     def post(self,request):
+    def post(self, request):
         try:
             character_id = request.data['character_id']
-            character = Character.objects.get(id = character_id, author__user = request.uer)
+            character = Character.objects.get(id=character_id, author__user=request.user)
             name = request.data['name'].strip()
             profile = request.data['profile'].strip()[:100000]
-            photo = request.FILES('photo',None)
-            background_image = request.FILES.get('background',None)
+            photo = request.FILES.get('photo', None)
+            background_image = request.FILES.get('background_image', None)
 
             if not name:
                 return Response({
@@ -30,11 +30,11 @@ class UpdateCharacterView(APIView):
             if photo:
                 remove_old_photo(character.photo)
                 character.photo = photo
-            
+
             if background_image:
                 remove_old_photo(character.background_image)
                 character.background_image = background_image
-            
+                
             character.name = name
             character.profile = profile
             character.update_time = now()
@@ -44,6 +44,6 @@ class UpdateCharacterView(APIView):
             })
         except:
             return Response({
-                'result':'系统异常，请重试'
+                'result':'系统异常，请重试222'
             })
         

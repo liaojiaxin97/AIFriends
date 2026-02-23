@@ -6,6 +6,7 @@ import LoginIndex from '@/views/user/account/LoginIndex.vue';
 import RegisterIndex from '@/views/user/account/RegisterIndex.vue';
 import SpaceIndex from '@/views/user/space/SpaceIndex.vue';
 import ProfileIndex from '@/views/user/profile/ProfileIndex.vue';
+import UpdateCharacter from '@/views/create/character/UpdateCharacter.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
@@ -34,6 +35,14 @@ const router = createRouter({
       path: '/create/',
       name: 'create-index',
       component: CreateIndex,
+      meta:{
+        needLogin: true,  // 需要登录才能访问
+      }
+    },
+    {
+      path: '/create/character/update/:character_id/',
+      name: 'update-character',
+      component: UpdateCharacter,
       meta:{
         needLogin: true,  // 需要登录才能访问
       }

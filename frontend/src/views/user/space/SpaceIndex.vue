@@ -4,6 +4,7 @@ import {useRoute} from "vue-router";
 import UserInfoField from "./components/UserInfoField.vue";
 import {nextTick, onMounted, ref,useTemplateRef,onBeforeUnmount} from "vue";
 import api from '@/js/http/api';
+import Character from "@/components/character/Character.vue";
 
 
 const userProfile = ref(null)
@@ -13,6 +14,7 @@ const hasCharacters = ref(null)
 const sentinelRef = useTemplateRef('sentinel-ref')
 //user_id在url中，因此要使用路由
 const route = useRoute()
+let newCharacters = []
 function checkSentinelVisible() {  // 判断哨兵是否能被看到
   if (!sentinelRef.value) return false
 
@@ -37,6 +39,8 @@ async function loadMore() {
             }
         })
         const data = res.data
+        //观察流式加载
+        //console.log(data)
         if (data.result === 'success'){
             userProfile.value = data.user_profile
             newCharacters = data.characters
@@ -56,6 +60,7 @@ async function loadMore() {
             if (checkSentinelVisible()){
                 await loadMore()
         }
+
     }
 }}
 // 检测红色哨兵是否出现在视窗中，如果在视窗中则加载更多内容
@@ -78,12 +83,14 @@ onMounted(async () => {
   //监听哨兵元素， 每次哨兵被看到时，都会触发一次
   observer.observe(sentinelRef.value)
 })
+//传递给子组件
+function removeCharacter(characterId){
+    characters.value = characters.value.filter(character => character.id !== characterId)
+}
 
 onBeforeUnmount(() => {
   observer?.disconnect()  // 解绑监听器
 })
-
-
 
 </script>
 
@@ -94,10 +101,17 @@ onBeforeUnmount(() => {
         <UserInfoField :userProfile = "userProfile"/>
 
         <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-9 mt-12 justify-items-center w-full px-9">
-            ...
+            <Character
+            v-for = "character in characters"
+            :key = "character.id"
+            :character = "character"
+            :canEdit = "true"
+            @remove = "removeCharacter"
+            />
+
         </div>
         <!-- 红线在视窗内时，持续加载更多内容（卡片） -->
-        <div ref = "sentinel-ref" class = "h-2 mt-2 w-80 bg-red-500"> </div>
+        <div ref = "sentinel-ref" class = "h-2 mt-2"> </div>
         <div v-if = "isloading" class="text-gray-500 mt-4">加载中...</div>
         <div v-else-if="!hasCharacters" class = "text-gray-500 mt-">没有更多角色了</div>
     

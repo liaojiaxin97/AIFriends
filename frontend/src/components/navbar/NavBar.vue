@@ -2,14 +2,32 @@
 //图标导入
 // import MenuIcon from "@/components/navbar/icons/MenuIcon_vue"  
 import { useUserStore } from '@/stores/user';
+import { ref } from 'vue';
+
 import UserMenu from '@/components/navbar/UserMenu.vue';
 import UserHomePageIcon from '@/components/navbar/icons/HomepageIcon.vue';
 import UserCreateIcon from '@/components/navbar/icons/CreateIcon.vue';
 import UserFriendIcon from '@/components/navbar/icons/FriendIcon.vue';
 import UserSearchIcon from '@/components/navbar/icons/SearchIcon.vue';
 import UserSpaceIcon from './icons/UserSpaceIcon.vue';
+import { useRouter,useRoute } from 'vue-router';
+import { watch } from 'vue';
 const user = useUserStore()
-
+const route = useRoute()
+const router = useRouter()
+const searchQuery = ref()
+//路由参数变化时，输入框内容自动同步
+watch(() =>  route.query.q , newQ => {
+    searchQuery.value = newQ || ''
+})
+function handleSearch(){
+  router.push({
+    name:'homepage-index',
+    query:{
+      q :searchQuery.value.trim(),
+    }
+  })
+}
 </script>
 
 <template>
@@ -25,16 +43,15 @@ const user = useUserStore()
         </label>      
         <div class="px-4">AIFriends</div>
         </div>
-     
-
         <div class = "navbar-center w-4/5 max-w-180 flex jcustify-center">
-        <div class="join w-4/5 flex jcustify-center">
-        <input class="input join-item rounded-l-full w-4/5" placeholder="搜索你感兴趣的内容" />
-        <button class="btn join-item rounded-r-full gap-0">
-            <UserSearchIcon />
-            搜索
-        </button>
-        </div>
+          <!-- 回车完不能刷新新页面，应该在当前页面展示搜索结果 故用submit-->
+          <form @submit.prevent="handleSearch" class="join w-4/5 flex jcustify-center">
+            <input v-model = "searchQuery" class="input join-item rounded-l-full w-4/5" placeholder="搜索你感兴趣的内容" />
+            <button class="btn join-item rounded-r-full gap-0">
+                <UserSearchIcon />
+                搜索
+            </button>
+          </form>
         </div>
 
         <div class="navbar-end">

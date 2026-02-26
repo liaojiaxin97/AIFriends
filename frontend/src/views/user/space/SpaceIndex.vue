@@ -40,7 +40,6 @@ async function loadMore() {
         })
         const data = res.data
         //观察流式加载
-        //console.log(data)
         if (data.result === 'success'){
             userProfile.value = data.user_profile
             newCharacters = data.characters

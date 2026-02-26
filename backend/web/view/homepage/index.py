@@ -1,14 +1,21 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from django.db.models import Q
 from web.models.character import Character
 
 class HomepageIndexView(APIView):
     def get(self,request):
         try:
-            items_count = int(request.query_params.get('item_count',0))
+            items_count = int(request.query_params.get('items_count',0))
+            search_query = request.query_params.get('search_query','').strip()
             #id从大到小
-            character_raw = Character.objects.all().order_by('-id')[items_count:items_count + 20]
+            if search_query:
+                queryset = Character.objects.filter(
+                    Q(name__icontains=search_query) | Q(profile__icontains=search_query)
+                )
+            else:
+                queryset = Character.objects.all()
+            character_raw = queryset.order_by('-id')[items_count:items_count + 20]
             characters = []
             for character in character_raw:
                 author = character.author

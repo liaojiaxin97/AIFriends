@@ -11,6 +11,7 @@ from web.view.create.character.get_single import GetSingleCharacterView
 from web.view.create.character.remove import RemoveCharacterView
 from web.view.create.character.update import UpdateCharacterView
 from web.view.create.character.get_list import GetListCharacterView
+from web.view.homepage.index import HomepageIndexView
 urlpatterns = [
     #后端前面不用加/
     #要用api开头，区分前后端路由，不然后跟前端路由冲突了
@@ -27,7 +28,7 @@ urlpatterns = [
     path('api/create/character/remove/', RemoveCharacterView.as_view()),
     path('api/create/character/update/', UpdateCharacterView.as_view()),
     path('api/create/character/get_list/', GetListCharacterView.as_view()),
-
+    path('api/homepage/index/', HomepageIndexView.as_view()),
     path("", index, name='index'),
 
     #兜底路由

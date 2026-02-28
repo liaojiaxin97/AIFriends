@@ -1,7 +1,8 @@
 <script setup>
 import {useRoute,useRouter} from "vue-router";
-import {ref} from "vue";
+import {ref, useTemplateRef} from "vue";
 import { useUserStore } from "@/stores/user.js";
+import ChatField from "./chat_field/ChatField.vue";
 import UpdateIcon from "@/components/character/icon/UpdateIcon.vue";
 import RemoveIcon from "./icon/RemoveIcon.vue";
 import api from '@/js/http/api.js';
@@ -27,12 +28,40 @@ async function handleRemoveCharacter(){
         console.log(err)
     }
 }
+const chatFieldRef = useTemplateRef('chat-field-ref')
+//存储从服务器端返回的好友
+const friend = ref(null)
+
+//打开聊天框逻辑
+async function openChatField(){
+    if (!user.isLogin()) {
+        await router.push({
+            name:'user-account-login-index'
+        })
+    }else{
+        try{
+            const res = await api.post('/api/friend/get_or_create/',{
+                character_id:props.character.id,
+            })
+        const data = res.data
+        console.log(data)
+        if (data.result === 'success') {
+            friend.value = data.friend
+            chatFieldRef.value.showModal()
+        }
+        }catch(err){
+            console.log(err)
+        }
+    }
+    // console.log('open chat field')
+}
+
 </script>
 
 <template>
 
 <div>
-    <div class = "avatar cursor-pointer" @mouseover="isHover = true" @mouseout="isHover = false">
+    <div class = "avatar cursor-pointer" @mouseover="isHover = true" @mouseout="isHover = false" @click="openChatField">
         <div class = "w-60 h-100 rounded-2xl relative " :class="{'scale-120': isHover}" >
             <img :src="character.background_image" class = "transition-transform duration-1000"   alt="">
             <div class = "absolute left-0 top-50 w-60 h-50 bg-linear-to-t from-black/40 to-transparent"></div>
@@ -66,7 +95,7 @@ async function handleRemoveCharacter(){
         </div>
         <div class ="text-sm line-clamp-1 break-all"> {{character.author.username}}</div>
     </router-link>
-
+    <ChatField ref = "chat-field-ref" :friend="friend"></ChatField>
 </div>
 
 </template>

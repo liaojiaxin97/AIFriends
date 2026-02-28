@@ -72,7 +72,7 @@ onMounted(async () => {
   observer.observe(sentinelRef.value)
 })
 
-//重新加载，自动读取url中的搜索参数，展示搜索结果
+//重新加载，自动读取url中的搜索参数q，展示搜索结果
 function  reset(){
   characters.value = []
   isLoading.value = false

@@ -27,7 +27,7 @@ let croppie = null
 async function openModal(photo){
     //js调用响应式变量 使用.value
     modalRef.value.showModal()
-
+    await nextTick() // 等待模态框打开，DOM元素渲染完成
     if (!croppie){
         croppie = new Croppie(croppieRef.value, {  // 创建croppie对象
             viewport: {width: 200, height: 200, type: 'square'},

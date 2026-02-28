@@ -12,6 +12,10 @@ from web.view.create.character.remove import RemoveCharacterView
 from web.view.create.character.update import UpdateCharacterView
 from web.view.create.character.get_list import GetListCharacterView
 from web.view.homepage.index import HomepageIndexView
+from web.view.friend.get_or_create import GetOrCreateFriendView
+from web.view.friend.get_list import GetListFriendView
+from web.view.friend.remove import RemoveFriendView 
+
 urlpatterns = [
     #后端前面不用加/
     #要用api开头，区分前后端路由，不然后跟前端路由冲突了
@@ -29,6 +33,10 @@ urlpatterns = [
     path('api/create/character/update/', UpdateCharacterView.as_view()),
     path('api/create/character/get_list/', GetListCharacterView.as_view()),
     path('api/homepage/index/', HomepageIndexView.as_view()),
+    path('api/friend/get_or_create/', GetOrCreateFriendView.as_view()),
+    path('api/friend/get_list/', GetListFriendView.as_view()),
+    path('api/friend/remove/', RemoveFriendView.as_view()),
+
     path("", index, name='index'),
 
     #兜底路由

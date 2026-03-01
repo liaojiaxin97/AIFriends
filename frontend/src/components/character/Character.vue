@@ -11,7 +11,7 @@ const router = useRouter()
 
 const isHover = ref(false)
 //接受外部传来的变量
-const props = defineProps(['character','canEdit'])
+const props = defineProps(['character','canEdit','friendId',"canRemoveFriend"])
 const emit = defineEmits(['remove'])
 const user = useUserStore()
 //后端删除逻辑
@@ -28,6 +28,20 @@ async function handleRemoveCharacter(){
         console.log(err)
     }
 }
+
+async function handleRemoveFriend(){
+    try{
+        const res = await api.post('/api/friend/remove/',{
+            friend_id:props.friendId,
+        })
+        if (res.data.result === 'success'){
+            emit('remove',props.friendId)
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const chatFieldRef = useTemplateRef('chat-field-ref')
 //存储从服务器端返回的好友
 const friend = ref(null)
@@ -44,7 +58,6 @@ async function openChatField(){
                 character_id:props.character.id,
             })
         const data = res.data
-        console.log(data)
         if (data.result === 'success') {
             friend.value = data.friend
             chatFieldRef.value.showModal()
@@ -67,11 +80,17 @@ async function openChatField(){
             <div class = "absolute left-0 top-50 w-60 h-50 bg-linear-to-t from-black/40 to-transparent"></div>
 
             <div v-if = "canEdit && character.author.user_id === user.id" class = "absolute right-0 top-50">
-                <router-link :to = "{name: 'update-character', params: {character_id: character.id}}" class = "btn btn-circle btn-ghost bg-transparent">
+                <router-link @click.stop :to = "{name: 'update-character', params: {character_id: character.id}}" class = "btn btn-circle btn-ghost bg-transparent">
                   <UpdateIcon />
                 </router-link>
-                <button @click="handleRemoveCharacter" class ="btn btn-circle btn-ghost bg-transparent">
+                <button @click.stop="handleRemoveCharacter" class ="btn btn-circle btn-ghost bg-transparent">
                     <RemoveIcon/>
+                </button>
+            </div>
+
+            <div v-if = "canRemoveFriend" class = "absolute right-0 top-50"> 
+                <button @click.stop="handleRemoveFriend" class  ="btn btn-circle btn-ghost bg-transparent">
+                    <RemoveIcon />
                 </button>
             </div>
             <div class = "absolute left-4 top-54 avatar">

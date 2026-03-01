@@ -4,6 +4,7 @@ from web.models.user import UserProfile
 from web.models.character import Character
 from django.utils.timezone import now,localtime
 class Friend(models.Model):
+     #CASCADE：当Character被删除时，相关的关系也会被删除
     me = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     memory = models.TextField(default="",max_length = 5000,blank=True,null=True)

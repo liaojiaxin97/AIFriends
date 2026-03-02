@@ -39,7 +39,7 @@ const user = useUserStore()
 
         <div class="navbar-end">
         <!-- 调试信息 -->
-        <!-- {{ user.isLogin() }}, {{ user.hasPulledUserInfo }} -->
+        {{ user.isLogin() }}, {{ user.hasPulledUserInfo }}
         <router-link v-if = "user.isLogin()" :to="{name: 'create-index' }" active-class = "btn-active" class= "btn btn-ghost text-base mr-6">
           创作
         </router-link>

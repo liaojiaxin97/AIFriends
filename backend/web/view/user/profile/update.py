@@ -37,7 +37,7 @@ class UpdateProfileView(APIView):
             user.save()
             return Response({
                 'result': 'success',
-                'use_id': user.id,
+                'id': user.id,
                 'username': user.username,
                 'profile': user_profile.profile,
                 'photo': user_profile.photo.url,

@@ -13,3 +13,21 @@ class Friend(models.Model):
 
     def __str__(self):
         return f"{self.character.name} - {self.me.user.username} - {localtime(self.create_time).strftime("%Y-%m-%d %H:%M:%S")}"
+
+#存储聊天信息
+class Message(models.Model):
+    friend = models.ForeignKey(Friend, on_delete=models.CASCADE)
+    #用户输入
+    user_message = models.TextField(max_length = 500)
+    #大模型自己的prompt
+    input = models.TextField(max_length=5000)
+    output = models.TextField(max_length=5000)
+    
+    input_tokens = models.IntegerField(default=0)
+    output_tokens = models.IntegerField(default=0)
+    total_tokens = models.IntegerField(default=0)
+    create_time = models.DateTimeField(default=now)
+    #消耗token数量
+
+    def __str__(self):
+        return f"{self.friend.character.name} - {self.friend.me.user.username} - {self.user_message[:50]} - {localtime(self.create_time).strftime("%Y-%m-%d %H:%M:%S")}"

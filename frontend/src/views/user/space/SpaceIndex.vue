@@ -5,6 +5,7 @@ import UserInfoField from "./components/UserInfoField.vue";
 import {nextTick, onMounted, ref,useTemplateRef,onBeforeUnmount} from "vue";
 import api from '@/js/http/api';
 import Character from "@/components/character/Character.vue";
+import { watch } from "vue";
 
 
 const userProfile = ref(null)
@@ -15,6 +16,21 @@ const sentinelRef = useTemplateRef('sentinel-ref')
 //user_id在url中，因此要使用路由
 const route = useRoute()
 let newCharacters = []
+
+function reset(){
+    userProfile.value = null
+    characters.value = []
+    isloading.value = false
+    hasCharacters.value = null
+    loadMore()
+}
+
+watch(() => route.params.user_id,()=>{
+    reset()
+})
+
+
+
 function checkSentinelVisible() {  // 判断哨兵是否能被看到
   if (!sentinelRef.value) return false
 

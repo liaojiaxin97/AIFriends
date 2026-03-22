@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from pathlib import Path
 #自动加载环境变量，例如API_KEY和API_BASE，寻找.env文件，将其内容加载到环境变量中
 from dotenv import load_dotenv
-load_dotenv()  # 加载环境变量
-
-from pathlib import Path
+# 使用明确路径确保 .env 被正确找到（backend/.env）
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

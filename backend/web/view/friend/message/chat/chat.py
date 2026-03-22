@@ -1,13 +1,25 @@
+import json
+from django.http import StreamingHttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from langchain_core.messages import HumanMessage
+from rest_framework.renderers import BaseRenderer
+from langchain_core.messages import HumanMessage, BaseMessageChunk
 
 from web.models.friend import Friend, Message
 from web.view.friend.message.chat.graph import ChatGraph
 
+#渲染器，防止DRF报错
+class SSERenderer(BaseRenderer):
+    media_type = 'text/event-stream'
+    format = 'txt'
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return data
+
+
 #因为此处是与大模型交互，报错较多，不进行try catch
 class MessageView(APIView):
+    renderer_classes = [SSERenderer]
     permission_classes = [IsAuthenticated]
     
     def post(self,request):
@@ -27,10 +39,32 @@ class MessageView(APIView):
         inputs = {
             'messages': [HumanMessage(message)]
         }
-        res = app.invoke(inputs)
+        # #非流式
+        # res = app.invoke(inputs)
         
-        print(res['messages'][-1].content)
+        #后端流式实现：定义一个生成器函数，使用yield关键字逐步返回数据块，每次调用yield时，函数会暂停执行并返回当前的数据块，直到下一次调用时继续执行。
         
-        return Response({
-            'result':'success',
-        })
+        #定义生成器
+        #SSE模式：服务器发送事件（Server-Sent Events），是一种单向通信协议，服务器可以持续向客户端推送数据，而客户端只能接收数据，不能向服务器发送数据。
+        def event_stream():
+            full_usage = {}
+            for msg,metadata in app.stream(inputs,stream_mode = "messages"):
+                if isinstance(msg, BaseMessageChunk):
+                    if msg.content:
+                        #每次调用，执行一次yield，返回一个消息块给前端，前端可以实时显示
+                        #如果没有消息可以yield,报错"Generator didn't yield anything"
+                        yield f'data:{json.dumps({"content":msg.content},ensure_ascii=False)}\n\n'
+                    if hasattr(msg,'usage_metadata') and msg.usage_metadata:
+                        full_usage = msg.usage_metadata
+            yield 'data:[DONE]\n\n'
+            print(full_usage)
+        
+        #自动用next迭代生成器---测试用例
+        # for data in event_stream():
+        #     print(data)
+        
+        response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+        #清除缓存
+        response['Cache-Control'] = 'no-cache'
+        return response
+        

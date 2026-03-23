@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BaseRenderer
-from langchain_core.messages import HumanMessage, BaseMessageChunk, SystemMessage
+from langchain_core.messages import HumanMessage, BaseMessageChunk, SystemMessage, AIMessage
 
 from web.models.friend import Friend, Message
 from web.models.friend import SystemPrompt
@@ -37,7 +37,7 @@ def add_recent_messages(state,friend):
     message = []
     for m in message_raw:
         message.append(HumanMessage(m.user_message))
-        message.append(SystemMessage(m.output))
+        message.append(AIMessage(m.output))
     return {'messages': msgs[:1] + message + msgs[1:]}
 
 #因为此处是与大模型交互，报错较多，不进行try catch
@@ -70,7 +70,7 @@ class MessageView(APIView):
         inputs = add_system_prompt(inputs,friend)
         
         #手动追加近期消息(10轮)
-        inputs = add_recent_messages(inputs,friend)
+        inputs = add_recent_messages(inputs,friend) 
 
         # #非流式
         # res = app.invoke(inputs)

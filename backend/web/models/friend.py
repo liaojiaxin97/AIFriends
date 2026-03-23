@@ -20,7 +20,7 @@ class Message(models.Model):
     #用户输入
     user_message = models.TextField(max_length = 500)
     #大模型自己的prompt
-    input = models.TextField(max_length=5000)
+    input = models.TextField(max_length=10000)
     output = models.TextField(max_length=5000)
     
     input_tokens = models.IntegerField(default=0)

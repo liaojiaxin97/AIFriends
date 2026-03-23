@@ -2,21 +2,26 @@
 import { useTemplateRef,ref } from 'vue';
 import MicIcon from '../../icon/MicIcon.vue';
 import SendIcon from '../../icon/SendIcon.vue';
-import api from '@/js/http/api.js';
 import streamApi from '@/js/http/steamApi';
 const props = defineProps(['friendId'])
+const emit = defineEmits(['pushBackMessage','addToLastMessage'])
 const inputRef = useTemplateRef("input-ref")
 const message = ref('')
+
 let isProcessing = false
 
 async function handleSend(){
-    if (isProcessing) reuturn 
+    if (isProcessing) return 
 
     //取出输入内容
     const content = message.value.trim()
     if (!content) return 
+    isProcessing = true
     //输入内容回车后，清楚输入框内容
     message.value = ''
+
+    emit('pushBackMessage', {role:'user',content:content, id: crypto.randomUUID()})
+    emit('pushBackMessage',{role:'ai',content:'',id:crypto.randomUUID()})
 
     //给后端发送请求
     try{
@@ -29,14 +34,13 @@ async function handleSend(){
                 if (isDone){
                     isProcessing = false
                 }else if (data.content){
-                    console.log(data.content)
+                    emit("addToLastMessage",data.content)
                 }
             },
             onerror(err){
                 isProcessing = false
             }
         })
-        console.log(res.data)
     } catch (err){
         console.log(err)
         isProcessing = false 

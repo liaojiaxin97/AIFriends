@@ -47,16 +47,34 @@ class MessageView(APIView):
         #定义生成器
         #SSE模式：服务器发送事件（Server-Sent Events），是一种单向通信协议，服务器可以持续向客户端推送数据，而客户端只能接收数据，不能向服务器发送数据。
         def event_stream():
+            full_output = ''
             full_usage = {}
             for msg,metadata in app.stream(inputs,stream_mode = "messages"):
                 if isinstance(msg, BaseMessageChunk):
                     if msg.content:
+                        full_output += msg.content
                         #每次调用，执行一次yield，返回一个消息块给前端，前端可以实时显示
                         #如果没有消息可以yield,报错"Generator didn't yield anything"
                         yield f'data:{json.dumps({"content":msg.content},ensure_ascii=False)}\n\n'
                     if hasattr(msg,'usage_metadata') and msg.usage_metadata:
                         full_usage = msg.usage_metadata
             yield 'data:[DONE]\n\n'
+            #存取消耗的token
+            input_tokens = full_usage.get('input_tokens',0)
+            output_tokens = full_usage.get('output_tokens',0)
+            total_tokens = full_usage.get('total_tokens',0)
+            Message.objects.create(
+                friend = friend,
+                user_message = message[:500],
+                input = json.dumps(
+                   [m.model_dump() for m in inputs['messages']],
+                   ensure_ascii=False,
+                ),
+                output = full_output[:500],
+                input_tokens = input_tokens,
+                output_tokens = output_tokens,
+                total_tokens = total_tokens
+            )
             print(full_usage)
         
         #自动用next迭代生成器---测试用例

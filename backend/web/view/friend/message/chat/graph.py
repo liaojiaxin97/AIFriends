@@ -8,7 +8,10 @@ from langgraph.prebuilt import ToolNode
 from datetime import datetime
 import pprint
 from rest_framework.response import Response
-
+import lancedb
+from web.documents.utils.custom_embeddings import CustomEmbeddings
+from langchain_community.vectorstores import LanceDB
+import pprint as pprint
 
 class ChatGraph:
     @staticmethod
@@ -20,8 +23,20 @@ class ChatGraph:
   
             return datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
-        
-        tools = [get_time]
+        @tool
+        def search_knowledge_base(query:str) -> str:
+            '''当用户查询阿里云百炼平台相关信息时，调用此函数，输入要查询的问题，输出为查询结果'''
+            db = lancedb.connect('./web/documents/lancedb_storage')
+            embeddings = CustomEmbeddings()
+            vector_db = LanceDB(
+                connection=db,
+                embedding=embeddings,
+                table_name='my_knowledge_base',
+            )
+            docs = vector_db.similarity_search(query, k=3)
+            context = '\n\n'.join([f'内容片段:{i+1}\n{doc.page_content}' for i, doc in enumerate(docs)])
+            return f'从知识库中找到以下信息：\n\n{context}\n'
+        tools = [get_time,search_knowledge_base]
             
         
         #连接大模型
@@ -42,7 +57,7 @@ class ChatGraph:
             
         #agent逻辑，接收状态，调用大模型获取回复，返回新的状态 
         def model_call(state: AgentState) -> AgentState:
-            # pprint.pprint(state)
+            pprint.pprint(state['messages'])
             #调用大模型，传入消息列表，获取回复
             res = llm.invoke(state['messages'])
             #将回复添加到消息列表中

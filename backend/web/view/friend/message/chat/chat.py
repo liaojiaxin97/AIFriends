@@ -4,11 +4,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BaseRenderer
-from langchain_core.messages import HumanMessage, BaseMessageChunk
+from langchain_core.messages import HumanMessage, BaseMessageChunk, SystemMessage
 
 from web.models.friend import Friend, Message
+from web.models.friend import SystemPrompt
 from web.view.friend.message.chat.graph import ChatGraph
-
+import pprint
 #渲染器，防止DRF报错
 class SSERenderer(BaseRenderer):
     media_type = 'text/event-stream'
@@ -16,6 +17,28 @@ class SSERenderer(BaseRenderer):
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return data
 
+
+def add_system_prompt(state,friend):
+    msgs = state['messages']
+    system_prompts = SystemPrompt.objects.filter(title = "回复").order_by('order_number')
+    prompt = ""
+    
+    for sp in system_prompts:
+        prompt += sp.promtps
+    
+    prompt += f'\n【角色性格】\n{friend.character.profile}\n'
+    return {'messages': [SystemMessage(prompt)] + msgs}
+
+
+def add_recent_messages(state,friend):
+    msgs = state['messages']
+    message_raw = list(Message.objects.filter(friend = friend).order_by('-id')[:10])
+    message_raw.reverse()
+    message = []
+    for m in message_raw:
+        message.append(HumanMessage(m.user_message))
+        message.append(SystemMessage(m.output))
+    return {'messages': msgs[:1] + message + msgs[1:]}
 
 #因为此处是与大模型交互，报错较多，不进行try catch
 class MessageView(APIView):
@@ -35,10 +58,20 @@ class MessageView(APIView):
         friend = friends.first()
         
         app = ChatGraph.create_app()
+
+        #
+  
         
         inputs = {
             'messages': [HumanMessage(message)]
         }
+
+        #手动追加系统提示
+        inputs = add_system_prompt(inputs,friend)
+        
+        #手动追加近期消息(10轮)
+        inputs = add_recent_messages(inputs,friend)
+
         # #非流式
         # res = app.invoke(inputs)
         

@@ -57,7 +57,7 @@ class ChatGraph:
             
         #agent逻辑，接收状态，调用大模型获取回复，返回新的状态 
         def model_call(state: AgentState) -> AgentState:
-            pprint.pprint(state['messages'])
+            # pprint.pprint(state['messages'])
             #调用大模型，传入消息列表，获取回复
             res = llm.invoke(state['messages'])
             #将回复添加到消息列表中

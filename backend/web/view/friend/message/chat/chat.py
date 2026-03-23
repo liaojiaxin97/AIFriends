@@ -9,6 +9,7 @@ from langchain_core.messages import HumanMessage, BaseMessageChunk, SystemMessag
 from web.models.friend import Friend, Message
 from web.models.friend import SystemPrompt
 from web.view.friend.message.chat.graph import ChatGraph
+from web.view.friend.message.memory.update import update_memory
 import pprint
 #渲染器，防止DRF报错
 class SSERenderer(BaseRenderer):
@@ -27,6 +28,7 @@ def add_system_prompt(state,friend):
         prompt += sp.promtps
     
     prompt += f'\n【角色性格】\n{friend.character.profile}\n'
+    prompt += f'【长期记忆】\n{friend.memory}\n'
     return {'messages': [SystemMessage(prompt)] + msgs}
 
 
@@ -59,9 +61,6 @@ class MessageView(APIView):
         
         app = ChatGraph.create_app()
 
-        #
-  
-        
         inputs = {
             'messages': [HumanMessage(message)]
         }
@@ -108,8 +107,9 @@ class MessageView(APIView):
                 output_tokens = output_tokens,
                 total_tokens = total_tokens
             )
-            print(full_usage)
-        
+            # print(full_usage)
+            if Message.objects.filter(friend = friend).count() % 1 == 0:
+                update_memory(friend)
         #自动用next迭代生成器---测试用例
         # for data in event_stream():
         #     print(data)

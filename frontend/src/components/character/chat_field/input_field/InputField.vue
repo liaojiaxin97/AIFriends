@@ -3,20 +3,31 @@ import { useTemplateRef,ref } from 'vue';
 import MicIcon from '../../icon/MicIcon.vue';
 import SendIcon from '../../icon/SendIcon.vue';
 import streamApi from '@/js/http/steamApi';
+import Microphone from './Microphone.vue';
 const props = defineProps(['friendId'])
 const emit = defineEmits(['pushBackMessage','addToLastMessage'])
 const inputRef = useTemplateRef("input-ref")
 const message = ref('')
 
-let isProcessing = false
+let processId = 0
 
-async function handleSend(){
-    if (isProcessing) return 
+const showMic = ref(false)
+// let isProcessing = false
+async function handleSend(event,audio_msg){
+    let content
+    if (audio_msg){
+        content = audio_msg.trim()
+    } else {
+        //取出输入内容
+        content = message.value.trim()
+        if (!content) return 
+    }
 
-    //取出输入内容
-    const content = message.value.trim()
-    if (!content) return 
-    isProcessing = true
+
+    // if (isProcessing) return 
+    // isProcessing = true
+    const curId = ++ processId
+
     //输入内容回车后，清楚输入框内容
     message.value = ''
 
@@ -31,9 +42,9 @@ async function handleSend(){
                 message:content,
             },
             onmessage(data,isDone){ 
-                if (isDone){
-                    isProcessing = false
-                }else if (data.content){
+                if (curId !== processId) return 
+
+                if (data.content){
                     emit("addToLastMessage",data.content)
                 }
             },
@@ -51,13 +62,25 @@ async function handleSend(){
 function focus(){
     inputRef.value.focus()
 }
+
+function close(){
+    //旧的curID不再接受消息
+    ++ processId
+    showMic.value = false
+}
+
+function handleStop(){
+    ++ processId
+}
+
 defineExpose({
     focus,
+    close,
 })
 </script>
 
 <template>
-    <form @submit.prevent="handleSend" class = "absolute bottom-4 left-2 w-86 h-12 flex items-center ">
+    <form v-if = "!showMic" @submit.prevent="handleSend" class = "absolute bottom-4 left-2 w-86 h-12 flex items-center ">
         <input
         ref = "input-ref"
         v-model = "message"
@@ -67,11 +90,15 @@ defineExpose({
         <div @click="handleSend" class ="absolute w-8 h-8 right-2 flex justify-center items-center cursor-pointer"> 
             <SendIcon/>
         </div>
-        <div class="absolute w-8 h-8 right-8 flex justify-center items-center cursor-pointer">
+        <div @click = "showMic = true" class="absolute w-8 h-8 right-8 flex justify-center items-center cursor-pointer">
             <MicIcon/>
         </div>
     </form>
-
+    <Microphone 
+        v-else
+        @close = "showMic = false"
+        @send = "handleSend" 
+        @stop = "handleStop"/>
 </template>
 
 <style scoped>

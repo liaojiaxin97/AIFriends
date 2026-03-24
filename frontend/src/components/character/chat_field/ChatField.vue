@@ -25,9 +25,7 @@ function handlePushFrontMessage(msg){
   history.value.unshift(msg)
 }
 
-defineExpose({
-    showModal,
-})
+
 const modalStyle = computed(() => {
   if (props.friend) {
     return {
@@ -50,13 +48,23 @@ function handleAddToLastMessage(delta){
   chatHistoryRef.value.scrollToBottom()
 }
 
+
+function handleClose(){
+  modalRef.value.close()
+  inputRef.value.close()
+}
+
+
+defineExpose({
+    showModal,
+})
 </script>
 
 <template>  
 
     <dialog ref="modal-Ref" class = "modal">
         <div class = "modal-box w-90 h-150" :style="modalStyle">
-            <button @click="modalRef.close()" class = "btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">x</button>
+            <button @click="handleClose" class = "btn btn-sm btn-circle btn-ghost bg-transparent absolute right-1 top-1">x</button>
             <ChatHistory 
               ref = "chat-history-ref"
               v-if = "friend"

@@ -2,9 +2,14 @@
 import KeyBoardIcon from '../../icon/KeyBoardIcon.vue';
 import {onMounted, ref, onBeforeUnmount} from "vue";
 import {MicVAD} from "@ricky0123/vad-web"
+import api from '@/js/http/api.js'
 
 const emit = defineEmits(['close',"send","stop"])
 const isSpeaking = ref(false)
+
+const VAD_BASE_URL = import.meta.env.DEV
+  ? `${window.location.origin}/vad/`
+  : `${window.location.origin}/static/frontend/vad/`
 
 
 
@@ -13,10 +18,9 @@ const isSpeaking = ref(false)
 let vadInstance = null;
 
 const startRecording = async () => {
-  const baseUrl = "http://localhost:5173/vad/";
   try {
     vadInstance = await MicVAD.new({
-      baseAssetPath: baseUrl,
+      baseAssetPath: VAD_BASE_URL,
       onSpeechStart: () => {
         isSpeaking.value = true;
         emit('stop')
@@ -27,7 +31,7 @@ const startRecording = async () => {
         sendToBackend(pcm16);
       },
       ortConfig: (ort) => {
-        ort.env.wasm.wasmPaths = baseUrl;
+        ort.env.wasm.wasmPaths = VAD_BASE_URL;
         ort.env.logLevel = "error";
       },
       positiveSpeechThreshold: 0.8,
@@ -57,10 +61,11 @@ const sendToBackend = async (arrayBuffer) => {
   const formData = new FormData()
   formData.append("audio", blob, "voice.pcm")
   try{
-    const res = await api.post('',formData)
+    const res = await api.post('/api/friend/message/asr/',formData)
     const data = res.data
+    console.log("ASR 识别结果:", data)
     if (data.result === "success"){
-        emit('send',)
+        emit('send',null, data.text)
     }
   }catch (err)
     {

@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+
 from web.view.index import index    
 from web.view.user.account.login import LoginView
 from web.view.user.account.register import RegisterView
@@ -15,7 +16,8 @@ from web.view.homepage.index import HomepageIndexView
 from web.view.friend.get_or_create import GetOrCreateFriendView
 from web.view.friend.get_list import GetListFriendView
 from web.view.friend.remove import RemoveFriendView 
-
+from web.view.friend.message.chat.chat import MessageChatView
+from web.view.friend.message.chat.get_history import GetHistoryView
 urlpatterns = [
     #后端前面不用加/
     #要用api开头，区分前后端路由，不然后跟前端路由冲突了
@@ -36,7 +38,8 @@ urlpatterns = [
     path('api/friend/get_or_create/', GetOrCreateFriendView.as_view()),
     path('api/friend/get_list/', GetListFriendView.as_view()),
     path('api/friend/remove/', RemoveFriendView.as_view()),
-
+    path('api/friend/message/chat/', MessageChatView.as_view()),
+    path('api/friend/message/chat/get_history/', GetHistoryView.as_view()),
     path("", index, name='index'),
 
     #兜底路由

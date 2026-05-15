@@ -6,6 +6,8 @@ import api from '@/js/http/api.js';
 import streamApi from '@/js/http/streamApi';
 //接受父组件传来的变量
 const props = defineProps(['friendId'])
+//接受父组件传来的函数
+const emit = defineEmits(['pushBackMessage','addToLastMessage'])
 const inputRef = useTemplateRef('input-ref')
 //响应式变量
 const message = ref('')
@@ -22,6 +24,10 @@ async function handleSend(){
     const content = message.value.trim()
     if (!content) return 
     message.value = ''
+    //先发出一条消息
+    emit('pushBackMessage',{role:'user',content:content,id:crypto.randomUUID()})
+    //插一条空的消息占位，为ai做占位
+    emit('pushBackMessage',{role:'ai',content:'',id:crypto.randomUUID()})
 
     try {
         await streamApi('/api/friend/message/chat/',{
@@ -33,7 +39,8 @@ async function handleSend(){
                 if (isDone){
                     isProcessing = false
                 } else if (data.content){
-                    console.log(data.content)
+                    //后端每返回一条内容，消息就添加进历史消息，同时整个聊天框波动滚动条显示最新消息
+                    emit('addToLastMessage',data.content)
                 }
             },
             onerror(err){

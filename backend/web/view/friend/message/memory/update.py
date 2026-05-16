@@ -39,11 +39,11 @@ def update_memory(friend):
         ]
     }
     
-    pprint.pprint(inputs)
+    #pprint.pprint(inputs)
     
     res = app.invoke(inputs)
     friend.memory = res['messages'][-1].content
-    pprint.pprint(friend.memory)
+    #pprint.pprint(friend.memory)
     
     friend.update_time = timezone.now()
     friend.save()

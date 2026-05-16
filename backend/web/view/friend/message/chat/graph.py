@@ -55,7 +55,7 @@ class ChatGraph:
             messages: Annotated[Sequence[BaseMessage], add_messages]
         # 作为图节点的执行逻辑
         def model_call(state: AgentState) -> AgentState:
-            pprint.pprint(state)
+            #pprint.pprint(state)
             res = llm.invoke(state['messages'])
             return {'messages':[res]}
         

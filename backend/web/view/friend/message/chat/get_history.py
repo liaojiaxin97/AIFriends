@@ -16,7 +16,7 @@ class GetHistoryView(APIView):
             if last_message_id > 0:
                 queryset = queryset.filter(id__lt = last_message_id)
             #因为上面取完是正序的，所以这里倒序一下，保证前端展示是按照时间顺序的
-            messages_raw = queryset.order_by('-id')[:1]
+            messages_raw = queryset.order_by('-id')[:10]
             messages = []
             
             for m in messages_raw:

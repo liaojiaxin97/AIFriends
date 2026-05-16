@@ -1,21 +1,49 @@
 import json
+import pprint
 
 from django.http import StreamingHttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from langchain_core.messages import BaseMessageChunk, HumanMessage
+from langchain_core.messages import AIMessage, BaseMessageChunk, HumanMessage, SystemMessage
 
 from rest_framework.renderers import BaseRenderer
 from web.models.friend import Friend, Message
 from web.view.friend.message.chat.graph import ChatGraph
-
+from web.models.friend import SystemPrompt
 class SSERenderer(BaseRenderer):
     media_type = 'text/event-stream'
     format = 'txt'
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return data
+
+
+#添加系统提示词
+def add_system_prompt(state,friend):
+    msgs = state['messages']
+    system_prompts= SystemPrompt.objects.filter(title = "回复").order_by('order_number')
+    prompt = ''
     
+    for sp in system_prompts:
+        prompt += sp.prompt
+    prompt += f'\n【角色性格】\n {friend.character.profile}\n'
+    
+    return {'messages':[SystemMessage(prompt)] + msgs}
+
+
+#添加最近十轮对话
+
+def add_recent_messages(state,friend):
+    msgs = state['messages']
+    message_raw = list(Message.objects.filter(friend = friend).order_by('-id')[:10])
+    message_raw.reverse()
+    messages = []
+    for m in message_raw:
+        messages.append(HumanMessage(m.user_message))
+        messages.append(AIMessage(m.output))
+    return {'messages':msgs[:1] + messages + msgs[-1:]}
+
+
 class MessageChatView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [SSERenderer]
@@ -39,7 +67,10 @@ class MessageChatView(APIView):
         inputs = {
             'messages':[HumanMessage(message)]
         }
-        
+        inputs = add_system_prompt(inputs,friend)
+        inputs = add_recent_messages(inputs,friend)
+        ### 系统提示词 + 最近十轮消息 + 用户最新的消息###
+        ##pprint.pprint(inputs)
         #非流式发送和输出
         # res = app.invoke(inputs)
         # # print(res)

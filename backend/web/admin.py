@@ -6,6 +6,8 @@ from web.models.user import UserProfile
 from web.models.friend import Friend,Message
 ##数据库创建
 from web.models.character import Character
+
+from web.models.friend import SystemPrompt
 @admin.register(UserProfile)
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -23,6 +25,10 @@ class FriendAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     raw_id_fields = ('friend',)
+#不包含外键，因为系统提示不需要关联其他表，直接在后台管理界面添加和修改即可
+
+admin.site.register(SystemPrompt)
+    
 ###注册完成后，使用python .\manage.py makemigrations
 #python manage.py makemigrations：生成数据库更新操作
 #python manage.py migrate：将数据库的更新同步到db.sqlite3（或者其他数据库，例如mysql）中

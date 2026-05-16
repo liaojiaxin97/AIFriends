@@ -54,7 +54,6 @@ const modalStyle = computed(() => {
     return {}
   }
 })
-console.log(props.friend)
 </script>
 
 <template>  

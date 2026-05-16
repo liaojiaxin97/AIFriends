@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from langchain_core.messages import AIMessage, BaseMessageChunk, HumanMessage, SystemMessage
 
 from rest_framework.renderers import BaseRenderer
+from web.view.friend.message.memory.update import update_memory
 from web.models.friend import Friend, Message
 from web.view.friend.message.chat.graph import ChatGraph
 from web.models.friend import SystemPrompt
@@ -27,7 +28,7 @@ def add_system_prompt(state,friend):
     for sp in system_prompts:
         prompt += sp.prompt
     prompt += f'\n【角色性格】\n {friend.character.profile}\n'
-    
+    prompt += f'【长期记忆】\n{friend.memory}\n'
     return {'messages':[SystemMessage(prompt)] + msgs}
 
 
@@ -117,6 +118,12 @@ class MessageChatView(APIView):
         # for data in event_stream():
         #     print(data)
         
+            #每1条消息更新一次记忆
+            #筛选出这个朋友的所有消息，并且返回这些消息的总数
+            if Message.objects.filter(friend=friend).count() % 1 ==0:
+                update_memory(friend)
+            
+            
         response = StreamingHttpResponse(event_stream(),content_type = "text/event-stream")
         response['Cache-Control'] = 'no-cache'
         return response

@@ -21,7 +21,8 @@ async function handleSend(event,audio_msg){
     //检测是语音还是文字消息
     let content
     if (audio_msg){
-        content = audio
+        content = audio_msg
+        if (!content || !String(content).trim()) return
     } else {
         //取出前端输入消息
         content = message.value.trim()
